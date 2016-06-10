@@ -1,0 +1,60 @@
+
+# Docker client on Windows/Mac/Linux is needed for demoing this script
+
+# On Bash
+export DOCKER_HOST=acstestdbmgmt.northeurope.cloudapp.azure.com:2375
+
+# On Windows
+SET DOCKER_HOST=acstestdbmgmt.northeurope.cloudapp.azure.com:2375
+
+# Create an image (use NodeApp folder)
+docker build -t scoriani/nodeapp .
+
+# Push the image to a Docker registry (use public for the sake of the demo)
+docker push scoriani/nodeapp:latest
+
+# Deploy an instance of current service
+docker-compose up -d
+
+# Scale-out an instance across multiple hosts
+docker-compose scale web=4
+
+# Scale back in
+docker-compose scale web=1
+
+# Visualize metrics
+docker stats
+
+# Upgrade app code, image and upgrade containers (if time permits)
+
+#####################################################################
+# REST API CALLS
+#####################################################################
+
+# Cluster info
+http://acstestdbmgmt.northeurope.cloudapp.azure.com:2375/info
+
+# Visualize deployed containers
+http://acstestdbmgmt.northeurope.cloudapp.azure.com:2375/containers/json
+
+# Visualize container stats
+http://acstestdbmgmt.northeurope.cloudapp.azure.com:2375/containers/8794ecf103681e5a8a7f98673fff915e7d8a0436d13f6538e0b5b6f85a6c8f22/stats?stream=0
+
+# Stop / restart deployed container
+http://acstestdbmgmt.northeurope.cloudapp.azure.com:2375/containers/8794ecf103681e5a8a7f98673fff915e7d8a0436d13f6538e0b5b6f85a6c8f22/stop
+
+http://acstestdbmgmt.northeurope.cloudapp.azure.com:2375/containers/8794ecf103681e5a8a7f98673fff915e7d8a0436d13f6538e0b5b6f85a6c8f22/start
+
+#####################################################################
+# Upgrade process
+#####################################################################
+
+# Update app (e.g. move from 1.0 to 2.0)
+
+# Create an updated image (use NodeApp folder)
+docker build -t scoriani/nodeapp:latest .
+# docker-compose build web
+docker push scoriani/nodeapp:latest
+
+# Upgrade in place of existing containers
+docker-compose up --no-deps -d web

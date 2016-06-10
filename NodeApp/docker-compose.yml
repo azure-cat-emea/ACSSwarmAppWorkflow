@@ -1,0 +1,4 @@
+﻿web:
+  image: scoriani/nodeapp
+  ports:
+    - "80:80"
